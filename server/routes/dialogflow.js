@@ -1,82 +1,47 @@
 const express = require('express');
 const router = express.Router();
 const structjson = require('./structjson.js');
+
 const dialogflow = require('dialogflow');
 const uuid = require('uuid');
 
 const config = require('../config/keys');
 
-const projectId = config.googleProjectID
-const sessionId = config.dialogFlowSessionID
-const languageCode = config.dialogFlowSessionLanguageCode
-
-
-// Create a new session
 const sessionClient = new dialogflow.SessionsClient();
-const sessionPath = sessionClient.sessionPath(projectId, sessionId);
-
-// We will make two routes 
-
-
-// Text Query Route
+const sessionPath = sessionClient.sessionPath(config.googleProjectID, config.dialogFlowSessionID);
 
 router.post('/textQuery', async (req, res) => {
-    //We need to send some information that comes from the client to Dialogflow API 
-    // The text query request.
-    const request = {
-        session: sessionPath,
-        queryInput: {
-            text: {
-                // The query to send to the dialogflow agent
-                text: req.body.text,
-                // The language used by the client (en-US)
-                languageCode: languageCode,
+
+    async function runSample(projectId = config.googleProjectID) {
+        const sessionId = uuid.v4();
+
+        console.log(`Session ID: ${sessionId}`);
+
+        const request = {
+            session: sessionPath,
+            queryInput: {
+                text: {
+                    text: req.body.text,
+                    languageCode: config.dialogFlowSessionLanguageCode,
+                },
             },
-        },
-    };
+        };
 
-    // Send request and log result
-    const responses = await sessionClient.detectIntent(request);
-    console.log('Detected intent');
-    const result = responses[0].queryResult;
-    console.log(`  Query: ${result.queryText}`);
-    console.log(`  Response: ${result.fulfillmentText}`);
+        // Send request and log result
+        const responses = await sessionClient.detectIntent(request);
+        console.log('Detected intent');
+        const result = responses[0].queryResult;
+        console.log(`  Query: ${result.queryText}`);
+        console.log(`  Response: ${result.fulfillmentText}`);
 
-    res.send(result)
+        res.send(result)
+    }
+
+    runSample().catch(error => {
+        console.error(error);
+        res.status(500).send({ error: error.message });
+    });
 })
-
-
-
-//Event Query Route
-
-router.post('/eventQuery', async (req, res) => {
-    //We need to send some information that comes from the client to Dialogflow API 
-    // The text query request.
-    const request = {
-        session: sessionPath,
-        queryInput: {
-            event: {
-                // The query to send to the dialogflow agent
-                name: req.body.event,
-                // The language used by the client (en-US)
-                languageCode: languageCode,
-            },
-        },
-    };
-
-    // Send request and log result
-    const responses = await sessionClient.detectIntent(request);
-    console.log('Detected intent');
-    const result = responses[0].queryResult;
-    console.log(`  Query: ${result.queryText}`);
-    console.log(`  Response: ${result.fulfillmentText}`);
-
-    res.send(result)
-})
-
-
-
-
 
 
 

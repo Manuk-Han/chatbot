@@ -12,3 +12,7 @@ yarn-error.log*
 
 dev.js
 ./server/config/dev.js
+
+.env
+
+chatbot-461805-ffc3e8a84b5c.json
