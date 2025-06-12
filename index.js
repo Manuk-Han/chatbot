@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 const app = express();
+const cors = require("cors");
 
 const config = require("./server/config/keys");
 // const mongoose = require("mongoose");
@@ -9,6 +10,7 @@ const config = require("./server/config/keys");
 //   .then(() => console.log('MongoDB Connected...'))
 //   .catch(err => console.log(err));
 
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 

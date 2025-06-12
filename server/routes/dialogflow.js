@@ -43,6 +43,38 @@ router.post('/textQuery', async (req, res) => {
     });
 })
 
+router.post('/eventQuery', async (req, res) => {
+
+    async function runSample(projectId = config.googleProjectID) {
+        const sessionId = uuid.v4();
+
+        console.log(`Session ID: ${sessionId}`);
+
+        const request = {
+            session: sessionPath,
+            queryInput: {
+                event: {
+                    name: req.body.event,
+                    languageCode: config.dialogFlowSessionLanguageCode,
+                },
+            },
+        };
+
+        // Send request and log result
+        const responses = await sessionClient.detectIntent(request);
+        console.log('Detected intent');
+        const result = responses[0].queryResult;
+        console.log(`  Query: ${result.queryText}`);
+        console.log(`  Response: ${result.fulfillmentText}`);
+
+        res.send(result)
+    }
+
+    runSample().catch(error => {
+        console.error(error);
+        res.status(500).send({ error: error.message });
+    });
+})
 
 
 module.exports = router;
